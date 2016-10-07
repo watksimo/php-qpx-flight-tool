@@ -1,51 +1,98 @@
 <?php
 date_default_timezone_set('Australia/Brisbane');
-
 $API_KEY='AIzaSyDjBf13Qu1XH0l-KcykGEM8LshQFw1c4Bc';
-$url = "https://www.googleapis.com/qpxExpress/v1/trips/search?key={$API_KEY}";
 
-$outputFolder = 'results/';
+// $text = file_get_contents("results/file1.json");
+// get_basic_info($text);
 
-$JSONRequest = file_get_contents('json/test1.json');
+$BosToLax = new RequestInfo(file_get_contents("json/test1.json"));
+print_r($BosToLax);
 
-$postData = '{
-  "request": {
-    "passengers": {
-      "adultCount": 1
-    },
-    "slice": [
-      {
-        "origin": "BOS",
-        "destination": "LAX",
-        "date": "2017-01-14"
-      },
-      {
-        "origin": "LAX",
-        "destination": "BOS",
-        "date": "2017-02-04"
-      }
-    ]
+class RequestInfo {
+  private $containing_file = "";
+  private $flights = [];
+
+  public function __construct($json_request) {
+    global $API_KEY;
+    $url = "https://www.googleapis.com/qpxExpress/v1/trips/search?key={$API_KEY}";
+
+    $curlConnection = curl_init();
+    curl_setopt($curlConnection, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+    curl_setopt($curlConnection, CURLOPT_URL, $url);
+    curl_setopt($curlConnection, CURLOPT_POST, TRUE);
+    curl_setopt($curlConnection, CURLOPT_POSTFIELDS, $json_request);
+    curl_setopt($curlConnection, CURLOPT_FOLLOWLOCATION, TRUE);
+    curl_setopt($curlConnection, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curlConnection, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+    $flight_json_data = curl_exec($curlConnection);
+    $this->save_results($flight_json_data);
+
+    $this->extract_flight_info($flight_json_data);
   }
-}';
 
-# echo $url;
-# echo $JSONRequest;
+  private function extract_flight_info($flight_json_data) {
+    $flight_array = json_decode($flight_json_data);
 
-$curlConnection = curl_init();
+    foreach($flight_array->trips->tripOption as $trip_data) {
+      array_push($this->flights, new TripInfo($trip_data));
+    }
 
-curl_setopt($curlConnection, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-curl_setopt($curlConnection, CURLOPT_URL, $url);
-curl_setopt($curlConnection, CURLOPT_POST, TRUE);
-curl_setopt($curlConnection, CURLOPT_POSTFIELDS, $JSONRequest);
-curl_setopt($curlConnection, CURLOPT_FOLLOWLOCATION, TRUE);
-curl_setopt($curlConnection, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt($curlConnection, CURLOPT_SSL_VERIFYPEER, FALSE);
+  }
 
-$results = curl_exec($curlConnection);
+  private function save_results($flight_json_data) {
+    $filename = "results/" . strval(time()) . ".json";
+    $outFile = fopen($filename, "w");
 
-$dateStamp = date('Y-m-d H:i:s');
-$outFile = fopen("{$outputFolder}{$dateStamp}", "w");
+    fwrite($outFile, $flight_json_data);
+    fclose($outFile);
 
-fwrite($outFile, $results);
-fclose($outFile);
+    $this->containing_file = $filename;
+
+  }
+
+}
+
+class TripInfo {
+
+  public $basic_info = NULL;
+
+  public function __construct($trip_data) {
+
+    $this->extract_basic_info($trip_data);
+  }
+
+  private function extract_basic_info($trip_data) {
+    $this->basic_info = new BasicInfo();
+
+    $this->basic_info->cost = $trip_data->saleTotal;
+    foreach($trip_data->slice as $journey_leg) {
+      $this->basic_info->duration = $journey_leg->duration;
+      foreach($journey_leg->segment as $segment) {
+        $leg_info = new LegInfo();
+        $leg_info->class = $segment->cabin;
+        $leg = $segment->leg[0];
+        $leg_info->origin = $leg->origin;
+        $leg_info->destination = $leg->destination;
+        $leg_info->duration = $leg->duration;
+        array_push($this->basic_info->trip_legs, $leg_info);
+      }
+    }
+  }
+
+}
+
+class BasicInfo {
+  public $cost = NULL;
+  public $trip_legs = [];
+  public $duration = NULL;
+}
+
+class LegInfo {
+  public $class = NULL;
+  public $origin = NULL;
+  public $destination = NULL;
+  public $duration = NULL;
+}
+
 ?>
