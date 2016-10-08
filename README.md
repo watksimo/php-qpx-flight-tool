@@ -13,8 +13,11 @@
 * Cheapest path between all destinations matching all criteria
 
 **Process**
+
 1. Determines every possible order visiting all locations, starting and finishing at the input locations and departing on the given date.
+
 1. Checks the cost of each path, storing only the cheapest at each step.
+
 1. Returns and stores the cheapest overall cost between all destinations matching all criteria in a database.
 
 ## Future Additions
