@@ -12,14 +12,23 @@ $test_request->execute_request();
 
 print_r($test_request->flights);
 
+/*
+Stores all data regarding the request and the response. The request is not
+executed upon construction in order to allow for more control - the request is
+sent to the server using execute_request().
+*/
 class RequestInfo {
-  public $containing_file = "";
-  public $flights = [];
-  public $start_date = NULL;
-  public $dest_list = NULL;
-  public $passengers = NULL;
-  private $json_request = NULL;
+  public  $containing_file  = "";
+  public  $flights          = [];
+  public  $start_date       = NULL;
+  public  $dest_list        = NULL;
+  public  $passengers       = NULL;
+  private $json_request     = NULL;
 
+  /*
+  Creates new RequestInfo instance, populates all instance variables and creates
+  JSON required to make the QPX request.
+  */
   public function __construct($start_date, $dest_list, $passengers) {
     $this->start_date = $start_date;
     $this->dest_list = $dest_list;
@@ -28,6 +37,9 @@ class RequestInfo {
     $this->json_request = $this->make_qpx_json();
   }
 
+  /*
+  Function for the user to execute to make the QPX request.
+  */
   public function execute_request() {
     $json_results = $this->make_qpx_request($this->json_request);
     if($json_results == -1) {
@@ -37,6 +49,10 @@ class RequestInfo {
     $this->save_results($json_results);
   }
 
+  /*
+  Uses the instance variables to create the JSON required to make the QPX
+  request.
+  */
   private function make_qpx_json() {
     global $NUM_SOLUTIONS;
     $json_request = file_get_contents('templates/basic_qpx_request.tpl');
@@ -69,6 +85,9 @@ class RequestInfo {
 
   }
 
+  /*
+  Executes the QPX HTTP request using the pre-formed JSON.
+  */
   private function make_qpx_request($json_request) {
     global $API_KEY;
     $url = "https://www.googleapis.com/qpxExpress/v1/trips/search?key={$API_KEY}";
@@ -93,7 +112,10 @@ class RequestInfo {
     return $flight_json_data;
   }
 
-  public function make_qpx_slice($orig, $dest, $date) {
+  /*
+  Generates the JSON text for the slice portion of the JSON request.
+  */
+  private function make_qpx_slice($orig, $dest, $date) {
     $slice_string = trim(file_get_contents('templates/slice.tpl'));
 
     $slice_string = preg_replace('/{\$origin}/', $orig->airport_code, $slice_string);
@@ -103,6 +125,9 @@ class RequestInfo {
     return $slice_string;
   }
 
+  /*
+  Parses the QPX JSON response and stores it as easily accessible data.
+  */
   private function extract_flight_info($flight_json_data) {
     $flight_array = json_decode($flight_json_data);
 
@@ -112,6 +137,9 @@ class RequestInfo {
 
   }
 
+  /*
+  Save JSON results of QPX request to a text file for future parsing if required.
+  */
   private function save_results($flight_json_data) {
     $filename = "results/" . strval(time()) . ".json";
     $outFile = fopen($filename, "w");
@@ -125,19 +153,29 @@ class RequestInfo {
 
 }
 
+/*
+Stores easily accessible information for each individual trip in a request's
+response.
+*/
 class TripInfo {
 
-  public $basic_info = NULL;
+  public $cost      = NULL;
+  public $trip_legs = [];
 
+  /*
+  Creates new TripInfo instance by parsing returned JSON file and extracting the
+  data.
+  */
   public function __construct($trip_data) {
-
     $this->extract_basic_info($trip_data);
   }
 
+  /*
+  Extracts cost and details of each leg of the trip from the returned JSON file
+  and saves them to instance variables.
+  */
   private function extract_basic_info($trip_data) {
-    $this->basic_info = new BasicInfo();
-
-    $this->basic_info->cost = $trip_data->saleTotal;
+    $this->cost = $trip_data->saleTotal;
     foreach($trip_data->slice as $journey_leg) {
       foreach($journey_leg->segment as $segment) {
         $leg_info = new LegInfo();
@@ -153,13 +191,19 @@ class TripInfo {
 
 }
 
+/*
+Stores the number of each type of passenger for a request.
+*/
 class Passengers {
-  public $adult_count = 0;
-  public $child_count = 0;
-  public $infant_lap_count = 0;
+  public $adult_count       = 0;
+  public $child_count       = 0;
+  public $infant_lap_count  = 0;
   public $infant_seat_count = 0;
-  public $senior_count = 0;
+  public $senior_count      = 0;
 
+  /*
+  Creates new Passengers instance storing the number of all types of passengers.
+  */
   public function __construct($adult_count, $child_count, $infant_lap_count, $infant_seat_count, $senior_count) {
       $this->adult_count = $adult_count;
       $this->child_count = $child_count;
@@ -169,10 +213,17 @@ class Passengers {
   }
 }
 
+/*
+Stores location and duration of a single destination. Multiple destinations are
+combined in a list to make a request.
+*/
 class Destination {
-  public $airport_code = NULL;
-  public $duration = NULL;
+  public $airport_code  = NULL;
+  public $duration      = NULL;
 
+  /*
+  Creates new Destination instance storing the location and duration.
+  */
   public function __construct($airport_code, $duration) {
     $this->airport_code = $airport_code;
     $this->duration = $duration;
@@ -180,17 +231,15 @@ class Destination {
 
 }
 
-class BasicInfo {
-  public $cost = NULL;
-  public $trip_legs = [];
-}
-
+/*
+Stores all information regarding a single leg of a trip.
+*/
 class LegInfo {
   // TODO Add departure time
-  public $class = NULL;
-  public $origin = NULL;
+  public $class       = NULL;
+  public $origin      = NULL;
   public $destination = NULL;
-  public $duration = NULL;
+  public $duration    = NULL;
 }
 
 ?>
