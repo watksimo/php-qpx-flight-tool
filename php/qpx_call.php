@@ -55,7 +55,7 @@ class RequestInfo {
   */
   private function make_qpx_json() {
     global $NUM_SOLUTIONS;
-    $json_request = file_get_contents('templates/basic_qpx_request.tpl');
+    $json_request = file_get_contents('../templates/basic_qpx_request.tpl');
 
     $json_request = preg_replace('/{\$adultCount}/', $this->passengers->adult_count, $json_request);
     $json_request = preg_replace('/{\$childCount}/', $this->passengers->child_count, $json_request);
@@ -116,7 +116,7 @@ class RequestInfo {
   Generates the JSON text for the slice portion of the JSON request.
   */
   private function make_qpx_slice($orig, $dest, $date) {
-    $slice_string = trim(file_get_contents('templates/slice.tpl'));
+    $slice_string = trim(file_get_contents('../templates/slice.tpl'));
 
     $slice_string = preg_replace('/{\$origin}/', $orig->airport_code, $slice_string);
     $slice_string = preg_replace('/{\$destination}/', $dest->airport_code, $slice_string);
@@ -141,7 +141,7 @@ class RequestInfo {
   Save JSON results of QPX request to a text file for future parsing if required.
   */
   private function save_results($flight_json_data) {
-    $filename = "results/" . strval(time()) . ".json";
+    $filename = "../results/" . strval(time()) . ".json";
     $outFile = fopen($filename, "w");
 
     fwrite($outFile, $flight_json_data);

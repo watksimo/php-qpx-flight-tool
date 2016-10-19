@@ -1,0 +1,23 @@
+h1 { 
+    text-align: center; 
+    size: 2em;
+}
+.visualiser {
+    height: 400px; 
+    text-align: center;
+}
+.dest_panel, .dest_list, .add_dest {
+    width: 95%;
+    display: inline-block;
+}
+.content {
+    text-align: center;
+}
+#map {
+    height: 95%;
+    width: 95%;
+    display: inline-block;
+}
+.dest {
+    text-align: left;
+}
