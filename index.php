@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
         <title>Travelator</title>
 
         <link rel="stylesheet" type="text/css" href="css/style.css">
@@ -48,6 +49,12 @@
         <div class="visualiser col-sm-8">
             <div id="map">
             </div>
+        </div>
+    </div>
+
+    <div class="footer row">
+        <div class="col-sm-12">
+            <p>&copy; 2016 Watkins, S.M & Goode, T.J<p>
         </div>
     </div>
 

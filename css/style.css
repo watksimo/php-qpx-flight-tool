@@ -1,9 +1,26 @@
+html, body {
+    height: 100%;
+}
+.header {
+    height: 15%;
+    border: solid 1px;
+}
+.content {
+    height: 75%;
+    border: solid 1px;
+}
+.footer {
+    height: 10%;
+    border: solid 1px;
+    text-align: center;
+}
+
 h1 { 
     text-align: center; 
     size: 2em;
 }
 .visualiser {
-    height: 400px; 
+    height: 100%; 
     text-align: center;
 }
 .dest_panel, .dest_list, .add_dest {
