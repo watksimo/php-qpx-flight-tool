@@ -2,6 +2,8 @@
 var map;
 var autocomplete;
 var new_dest = new Object();
+var markerNum = 0;
+var markers = new Object();
 
 /*
 Initializes Google Map on page. Stores map reference to global variable.
@@ -67,33 +69,44 @@ function fillInAddress() {
 				break;
 		}
 	}
+	new_dest.coords = '{"lat":' + place.geometry.location.lat() + ', "lng":' + 
+						place.geometry.location.lng() + '}';
+
 }
 
 function addDestToList() {
 	var listItem = document.getElementById("dest_list");
 	var dest_dur = $( "#destDuration" ).val();
+	var markerName = markerNum + '-marker';
+	var destFullName = new_dest.city + ', ' + new_dest.state + ', ' + new_dest.country;
 
 	var itemText = `
 		<li class="dest list-group-item">
-                ` + new_dest.city + `, ` + new_dest.state + `, ` + new_dest.country + `
+                ` + destFullName + `
                 <span class="badge pull-right">` + dest_dur + ` days</span>
                 <button type="button" class="deleteDest btn btn-default btn-sm">
 		            <span class="glyphicon glyphicon-remove"></span>
 		        </button>
+		        <span class='destMarker'>` + markerName + `</span>
         </li>
 	`;
 
 	listItem.innerHTML = listItem.innerHTML + itemText;
 	$('.deleteDest').click(function() {
         $(this).closest( ".dest" ).remove();
+
+        var markerName = $(this).next( ".destMarker" ).html();
+        markers[markerName].setMap(null);
     });
     
     document.getElementById('destName').value = "";
     document.getElementById('destDuration').value = "";
 
-    console.log(new_dest);
+    var latLngObj = jQuery.parseJSON( new_dest.coords );
+    add_map_marker(markerName, latLngObj, destFullName);
 
     new_dest = new Object();
+    markerNum++;
 }
 
 function validateNewDest() {
@@ -104,6 +117,15 @@ function validateNewDest() {
 		return 1;
 	}
 }
+
+function add_map_marker(markerName, myLatLng, destName) {
+    markers[markerName] = new google.maps.Marker({
+        position: myLatLng,
+        map: map,
+        title: destName
+    });
+}
+
 
 
 

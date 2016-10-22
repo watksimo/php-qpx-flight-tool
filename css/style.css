@@ -21,3 +21,6 @@ h1 {
 .dest {
     text-align: left;
 }
+.destMarker {
+    visibility: hidden;
+}
