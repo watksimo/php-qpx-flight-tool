@@ -34,6 +34,7 @@ h1 {
     height: 95%;
     width: 95%;
     display: inline-block;
+    border-radius: 25px;
 }
 .dest {
     text-align: left;
