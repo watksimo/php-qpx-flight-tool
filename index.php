@@ -26,32 +26,21 @@
                     <h3 class="panel-title">Destinations</h3>
                 </div>
                 <div class="panel-body">
-                    <ul class="dest_list list-group">
-                        <li class="dest list-group-item">
-                                Destination 1
-                                <span class="badge pull-right">3 days</span>
-                        </li>
-                        <li class="dest list-group-item">
-                                Destination 2
-                                <span class="badge pull-right">2 days</span>
-                        </li>
-                        <li class="dest list-group-item">
-                                Destination 3
-                                <span class="badge pull-right">2 days</span>
-                        </li>
-                        <li class="dest list-group-item">
-                                Destination 4
-                                <span class="badge pull-right">5 days</span>
-                        </li>
+                    <ul class="list-group" id="dest_list">
                     </ul>
                 </div>
             </div>
 
-            <form class="add_dest panel panel-default">
+            <form id="addDestForm" class="panel panel-default">
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Search">
+                    <div id="locationField">
+                        <input id="destName" placeholder="Destination Name" type="text"></input>
+                        <input id="destDuration" placeholder="Duration (in days)" type="number" min="0"></input>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-default">Submit</button>
+                <button type="button" class="btn btn-default" id="addDestButton">
+                    Add Destination
+                </button>
             </form>
 
         </div>
@@ -68,7 +57,7 @@
         <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjBf13Qu1XH0l-KcykGEM8LshQFw1c4Bc"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjBf13Qu1XH0l-KcykGEM8LshQFw1c4Bc&libraries=places"></script>
 
         <script type="text/javascript" src="js/functions.js"></script>
     </footer>
